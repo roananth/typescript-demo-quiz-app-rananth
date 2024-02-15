@@ -27,7 +27,7 @@ class Quiz {
             currentQ.options.forEach((option: string) => {
                 const button = document.createElement('button');
                 button.innerText = option;
-                button.addEventListener('click', () => this.selectedOption=option);
+                button.addEventListener('click', () => this.selectOption(option));
                 optionContainer.appendChild(button);
             });
         }
@@ -36,13 +36,38 @@ class Quiz {
     // Select an option
     private selectOption(option: string): void {
         this.selectedOption=option;
-        const options = document.querySelectorAll("options button");
-        options.forEach(opt:Element) =>
+        const options = document.querySelectorAll("#options button");
+        options.forEach((opt: Element) =>{
+            if((opt as HTMLElement).innerText==option){
+                opt.classList.add('selected');
+            } else {
+                opt.classList.remove('selected');
+            }
+        });
     }
 
     // Submit the selected answer
     public submitAnswer(): void {
-        
+        if(this.selectedOption !== null){
+            if(this.selectedOption == this.questions[this.questionIndex].answer){
+                this.correctAnswers++;
+            } 
+            this.questionIndex++;
+            if(this.questionIndex < this.questions.length){
+                this.displayQuestion();
+            } else {
+                const resultElement = document.getElementById('result');
+                const submitButton = document.getElementById('submit');
+                if(resultElement){
+                    resultElement.innerText = `Your score ${this.correctAnswers} out of ${this.questions.length}`
+                }
+                if(submitButton){
+                    submitButton.style.display='none';
+                }
+            }
+        } else {
+            alert("Select an option before submitting");
+        }
     }
     
 }
@@ -65,4 +90,8 @@ const questions: IQuestion[] = [
 const quiz = new Quiz(questions);
 document.addEventListener('DOMContentLoaded', () => {
     quiz.displayQuestion();
+    const submitButton = document.getElementById('submit');
+    if(submitButton){
+        submitButton.addEventListener('click', () => quiz.submitAnswer());
+    }
 });
